@@ -28,7 +28,8 @@ const appConfig = {
     persistence : process.env.PERSISTENCE,
     mail_username : process.env.MAIL_USERNAME,
     mail_password : process.env.MAIL_PASSWORD,
-    mode : process.env.MODE
+    mode : process.env.MODE,
+    url: process.env.URL
 };
 
 

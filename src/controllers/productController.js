@@ -26,6 +26,7 @@ const productController = {
                 req.logger.info('Productos recuperados con éxito');
 
                 res.status(200).send({ status: "success", payload: result });
+
                 return result;
             } catch (error) {
                 req.logger.error('Error al recuperar los productos: ' + error.message);

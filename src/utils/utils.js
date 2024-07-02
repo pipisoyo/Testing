@@ -38,9 +38,9 @@ export function generateUniqueCode(cartId, purchaseDatetime) {
 
   // Generar un hash único a partir de la cadena combinada
   function generateHash(data) {
-      const saltRounds = 10; 
-      const hash = bcrypt.hashSync(data, saltRounds);
-      return hash;
+    const saltRounds = 10;
+    const hash = bcrypt.hashSync(data, saltRounds);
+    return hash;
   }
 
   // Generar el hash único a partir de la cadena combinada
@@ -59,11 +59,11 @@ export function calculateTotalAmount(products) {
 
   // Verificar si la lista de productos está vacía
   if (products.length === 0) {
-      return 0;
+    return 0;
   }
 
   // Calcular el monto total sumando los precios de los productos
-  const totalAmount = products.reduce((total, product) => total + product.product.price*product.quantity, 0);
+  const totalAmount = products.reduce((total, product) => total + product.product.price * product.quantity, 0);
 
 
 
@@ -90,29 +90,29 @@ const mailOptions = {
  * @returns {string} Mensaje de confirmación del envío del correo.
  */
 export async function sendMail(ticket) {
- const transport = nodemailer.createTransport(mailOptions);
-             
+  const transport = nodemailer.createTransport(mailOptions);
+
   try {
- const res = await ticketModel.findOne({code : ticket.code}).populate('productsToPurchase.product').lean().exec();
- let productsList = '';
+    const res = await ticketModel.findOne({ code: ticket.code }).populate('productsToPurchase.product').lean().exec();
+    let productsList = '';
 
- if (res && res.productsToPurchase) {
-  const products = res.productsToPurchase.map(element => ({
-      title: element.product.title,
-      quantity: element.quantity
-  }));
+    if (res && res.productsToPurchase) {
+      const products = res.productsToPurchase.map(element => ({
+        title: element.product.title,
+        quantity: element.quantity
+      }));
 
-  products.forEach(product => {
-      productsList += `<li>${product.title} - Cantidad: ${product.quantity}</li>`;
-  });
-}
+      products.forEach(product => {
+        productsList += `<li>${product.title} - Cantidad: ${product.quantity}</li>`;
+      });
+    }
 
-      
+
     const result = await transport.sendMail({
-    from: `Correo de prueba <${ticket.purchaser}>`,
-    to: ticket.purchaser,
-    subject: "Detalle de la compra",
-    html: `<div>
+      from: `Correo de prueba <${ticket.purchaser}>`,
+      to: ticket.purchaser,
+      subject: "Detalle de la compra",
+      html: `<div>
                 <h1>CORREO TEST</h1>
                 <h2>N° de Ticket: ${ticket.code}</h2>
                 <p>Fecha de Compra: ${ticket.purchase_datetime}</p>
@@ -122,9 +122,9 @@ export async function sendMail(ticket) {
                 </ul>
                 <h3>Total a Pagar: ${ticket.amount}</h3>
             </div>`,
-});
+    });
 
-return "Correo enviado";
+    return "Correo enviado";
   } catch (error) {
     console.error("Error al enviar el correo:", error);
     throw error;
@@ -136,15 +136,15 @@ return "Correo enviado";
  * @param {number} numOfProducts - Número de productos a generar.
  * @returns {object} Objeto con la lista de productos generados.
  */
-export const generateProducts =(numOfProducts)=>{
-  let products=[];
-  for (let i = 0 ; i < numOfProducts; i++){
-      let product = createProduct()
-      products.push(createProduct())
+export const generateProducts = (numOfProducts) => {
+  let products = [];
+  for (let i = 0; i < numOfProducts; i++) {
+    let product = createProduct()
+    products.push(createProduct())
   }
 
   return {
-      products,
+    products,
   };
 };
 
@@ -154,32 +154,32 @@ export const generateProducts =(numOfProducts)=>{
  * @throws {Error} Si algún campo obligatorio está vacío.
  */
 const createProduct = () => {
-  try{
-  const productData = {
-      _id:faker.database.mongodbObjectId(),
+  try {
+    const productData = {
+      _id: faker.database.mongodbObjectId(),
       title: faker.commerce.productName(),
       description: faker.lorem.sentences(),
       price: parseFloat(faker.commerce.price()),
-      code: faker.string.numeric({length: 8}),
-      stock: parseInt(faker.string.numeric({length: 3})),
+      code: faker.string.numeric({ length: 8 }),
+      stock: parseInt(faker.string.numeric({ length: 3 })),
       status: faker.datatype.boolean(),
       category: faker.commerce.department(),
       thumbnails: [faker.image.url()],
-      owner : "admin"
-  };
-console.log("entro")
-  const product = new ProductDTO(productData)
-  
-  // Verificar si algún campo obligatorio está vacío
-  for (const key in product) {
-    if (!product[key]) {
-        throw new Error(`Falta el campo '${key}' en el producto`);
-    }
-  }
+      owner: "admin"
+    };
+    console.log("entro")
+    const product = new ProductDTO(productData)
 
-  return product; // Devolver el producto si todos los campos están presentes
+    // Verificar si algún campo obligatorio está vacío
+    for (const key in product) {
+      if (!product[key]) {
+        throw new Error(`Falta el campo '${key}' en el producto`);
+      }
+    }
+
+    return product; // Devolver el producto si todos los campos están presentes
   } catch (error) {
-  throw new Error(`Error al crear el producto: ${error.message}`);
+    throw new Error(`Error al crear el producto: ${error.message}`);
   }
 };
 

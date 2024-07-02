@@ -69,43 +69,43 @@ const cartControler = {
  * @param {object} req - Objeto de solicitud.
  * @param {object} res - Objeto de respuesta.
  */
-addProductToCart: (req, res) => {
-    addLogger(req, res, async () => {
-        /**
-         * @param {string} req.params.pid - ID del producto a agregar.
-         * @param {string} req.params.cid - ID del carrito al que se agrega el producto.
-         * @param {number} quantity - Cantidad del producto a agregar (por defecto: 1).
-         */
-        req.logger.info('Agregando un producto al carrito');
+    addProductToCart: (req, res) => {
+        addLogger(req, res, async () => {
+            /**
+             * @param {string} req.params.pid - ID del producto a agregar.
+             * @param {string} req.params.cid - ID del carrito al que se agrega el producto.
+             * @param {number} quantity - Cantidad del producto a agregar (por defecto: 1).
+             */
+            req.logger.info('Agregando un producto al carrito');
 
-        const pid = req.params.pid;
-        const cid = req.params.cid;
-        const quantity = 1;
-        let user = req.session.user;
+            const pid = req.params.pid;
+            const cid = req.params.cid;
+            const quantity = 1;
+            let user = req.session.user;
 
-        try {
-            let cart = await cartsService.getCartById(cid);
+            try {
+                let cart = await cartsService.getCartById(cid);
 
-            if (!cart || cart.length === 0) {
-                cart = await cartsService.createCart();
+                if (!cart || cart.length === 0) {
+                    cart = await cartsService.createCart();
+                }
+                
+                let product = await productsService.getById(pid);
+
+                if (user.role === "premium" && product.owner === user.email) {
+                    req.logger.warn('No puede agregar productos que creaste');
+                    return response.errorResponse(res, 404, "No puede agregar productos que creaste");
+                }
+
+                await cartsService.addProductToCart(cid, pid, quantity);
+                req.logger.info('Producto agregado al carrito con éxito');
+                return response.successResponse(res, 201, "Producto agregado al carrito");
+            } catch (error) {
+                req.logger.error('Error al intentar agregar el producto al carrito: ' + error.message);
+                return response.errorResponse(res, 500, "Error al intentar agregar el producto al Carrito");
             }
-            
-            let product = await productsService.getById(pid);
-
-            if (user.role === "premium" && product.owner === user.email) {
-                req.logger.warn('No puede agregar productos que creaste');
-                return response.errorResponse(res, 404, "No puede agregar productos que creaste");
-            }
-
-            await cartsService.addProductToCart(cid, pid, quantity);
-            req.logger.info('Producto agregado al carrito con éxito');
-            return response.successResponse(res, 201, "Producto agregado al carrito");
-        } catch (error) {
-            req.logger.error('Error al intentar agregar el producto al carrito: ' + error.message);
-            return response.errorResponse(res, 500, "Error al intentar agregar el producto al Carrito");
-        }
-    });
-},
+        });
+    },
 
     /**
  * Elimina un producto del carrito.
@@ -210,8 +210,8 @@ addProductToCart: (req, res) => {
      */
     completePurchase: (req, res) => {
         addLogger(req, res, async () => {
+            
             req.logger.info('Finalizando el proceso de compra de un carrito');
-
             const cid = req.params.cid;
 
             try {
@@ -236,7 +236,7 @@ addProductToCart: (req, res) => {
                         productsNotPurchased.push({ product: cart.products[index].product, quantity: cart.products[index].quantity });
                     }
                 }
-                let purchaser = req.user.email || req.user.first_name;
+                let purchaser = req.user.email || req.user.first_name
 
                 // Verificar si hay productos para comprar antes de generar un ticket
                 if (productsToPurchase.length > 0) {
@@ -275,6 +275,8 @@ addProductToCart: (req, res) => {
                 response.errorResponse(res, 500, "Error al finalizar la compra");
             }
         });
+          
+    
     },
 
 };

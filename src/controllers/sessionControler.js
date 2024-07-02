@@ -20,6 +20,7 @@ const sessionController = {
      */
     logout: (req, res) => {
         addLogger(req, res, () => {
+            console.log("🚀 ~ req.session.destroy ~ req.session:", req.session)
             req.session.destroy((err) => {
                 if (err) {
                     req.logger.error('Sesión cerrada exitosamente')
@@ -37,9 +38,10 @@ const sessionController = {
      * @param {object} res - Objeto de respuesta.
      */
     register: (req, res) => {
+        let userData = req.user
         addLogger(req, res, () => {
             req.logger.info('Registrando nuevo usuario');
-            response.successResponse(res, 201, 'Usuario registrado exitosamente', null);
+            response.successResponse(res, 201, 'Usuario registrado exitosamente', userData);
         });
     },
 
@@ -141,7 +143,6 @@ restorePassword: (req, res) => {
         let email = getEmailFromToken(req.params.token);
         let { password } = req.body.obj;
         userModel.findOne({ email }).then(user => {
-            console.log("🚀 ~ userModel.findOne ~ user:", user);
             if (!user) {
                 req.logger.error('No se encuentra el usuario');
                 return response.errorResponse(res, 400, 'No se encuentra el usuario');

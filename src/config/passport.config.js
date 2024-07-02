@@ -28,7 +28,6 @@ const initializePassport = () => {
 
         try {
           const user = await userModel.findOne({ email: username });
-          console.log("🚀 ~ user:", user)
           if (user) {
             return done(null, false); // Usuario ya existe
           }

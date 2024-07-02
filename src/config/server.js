@@ -10,7 +10,7 @@ const DB_URL = config.mongo_url;
 /**
  * Conecta a la base de datos MongoDB.
  */
-const connectMongoDB = async () => {
+export const connectMongoDB = async () => {
   const dataBase = 'ecommerce';
   try {
     await mongoose.connect(DB_URL, { dbName: dataBase });
